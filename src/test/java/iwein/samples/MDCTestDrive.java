@@ -7,6 +7,7 @@ import org.slf4j.MDC;
 
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -62,5 +63,30 @@ public class MDCTestDrive {
         //MDC.setContextMap(contextMap.get());
 
         logger.debug("The most beautiful two words in English.");
+    }
+
+    @Test
+    public void shouldCopyContextBetweenOtherThreads() throws Exception {
+        final AtomicReference<Map> contextMap = new AtomicReference<Map>();
+
+        final ExecutorService sibling1 = Executors.newSingleThreadExecutor();
+        final ExecutorService sibling2 = Executors.newSingleThreadExecutor();
+
+        sibling1.execute(new Runnable() {
+            public void run() {
+                MDC.put("first", "Dorothy");
+                MDC.put("last", "Parker");
+                contextMap.set(MDC.getCopyOfContextMap());
+
+                sibling2.execute(new Runnable() {
+                    public void run() {
+                        //not needed, but should be because the context shouldn't be automatically shared with the sibling.
+                        MDC.setContextMap(contextMap.get());
+                        logger.debug("Check enclosed.");
+                    }
+                });
+                logger.info("The most beautiful two words in English.");
+            }
+        });
     }
 }
