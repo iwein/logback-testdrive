@@ -1,0 +1,30 @@
+<configuration scan="true" debug="true" scanPeriod="1" >
+
+  <appender name="STDOUT1" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+        <expression>return Level.TRACE.equals(Level.toLevel(level)) &amp;&amp; logger.startsWith("iwein.samples.foo");</expression>
+      </evaluator>
+      <OnMismatch>NEUTRAL</OnMismatch>
+      <OnMatch>DENY</OnMatch>
+    </filter>
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>STDOUT1 %logger{36} - %msg%n</Pattern>
+    </layout>
+  </appender>
+
+  <appender name="STDOUT2" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>STDOUT2 %logger{36} - %msg%n</Pattern>
+    </layout>
+  </appender>
+
+  <logger name="iwein.samples.foo" level="trace">
+    <appender-ref ref="STDOUT1" />
+  </logger>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT1"/>
+  </root>
+
+</configuration>
